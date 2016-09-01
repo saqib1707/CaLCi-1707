@@ -1,11 +1,8 @@
 import sys
-import PyQt4.QtCore as QtCore
-import PyQt4.QtGui as QtGui
-#import math
-
-#PI=Math.PI
-
-class QButton(QtGui.QWidget):
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+"""
+class QButton(QWidget):
     def __init__(self,button_no):
         QtGui.QWidget.__init__(self, None)
         self.button = QtGui.QPushButton('Button'+str(button_no), self)
@@ -54,3 +51,54 @@ def demo_QButton():
 
 if __name__=='__main__':
     demo_QButton()
+"""
+class make_QButton(QWidget):
+    def __init__(self,btn_no):
+        QWidget.__init__(self,None)
+        self.btn=QPushButton(str(btn_no),self)
+        self.btn.clicked.connect(self.make_CallBack(btn_no))
+
+    def make_CallBack(self,btn_no):
+        def CallBack():
+            self.btn.setText('I am '+str(btn_no))
+        return CallBack
+
+
+class make_LineEdit(QWidget):
+    def __init__(self):
+
+        self.line_edit=QLineEdit()
+        self.line_edit.setMaxLength(20)
+        self.line_edit.setAlignment(Qt.AlignRight)
+        self.line_edit.setFont(QFont('Arial',15))
+
+def window():
+    app=QApplication(sys.argv)
+    window=QWidget()
+
+    lineEdit=make_LineEdit()
+    vBox=QVBoxLayout()
+    grid=QGridLayout()
+    hBox1=QHBoxLayout()
+
+    count=0
+    for i in range(0,3):
+        for j in range(0,3):
+            count+=1
+            number_btn=make_QButton(count)
+            grid.addWidget(number_btn,i,j)
+    hBox1.addLayout(grid)
+
+    hBox2=QHBoxLayout()
+    hBox2.addWidget(lineEdit.line_edit)
+
+    vBox.addLayout(hBox2)
+    vBox.addLayout(hBox1)
+
+    window.setLayout(vBox)
+    window.setWindowTitle('CaLCi-1707')
+    window.show()
+    app.exec_()
+
+if __name__=='__main__':
+    window() 
