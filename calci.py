@@ -5,16 +5,6 @@ from PyQt4.QtCore import *
 import logicOfCalci
 import math
 
-#some constants
-
-e=2.7
-pi=math.pi
-R=8.314
-h=6.626e-34
-k=1.38e-23
-z=1
-t=2
-
 class make_Button(QWidget):
     def __init__(self,btn_repr):
         QWidget.__init__(self,None)
@@ -23,19 +13,39 @@ class make_Button(QWidget):
 
     def make_CallBack(self):
         def CallBack():
-            #lineEdit.line_edit.insert(btn_repr)
             lineEdit.line_edit.insert(self.btn.text())
-            if self.btn.text() in ['sin()','cos()','tan()','log()','ln()','exp()','sqrt()']:
+            if self.btn.text() in ['sin()','cos()','tan()','log()','ln()','exp()','sqrt()','()']:
                 txt=lineEdit.line_edit.text()
                 lineEdit.line_edit.setCursorPosition(len(txt)-1)
-            
+        
+        def isNumber(s):
+            try:
+                float(s)
+                return True
+            except ValueError:
+                return False
+
         def result():
-            text=lineEdit.line_edit.text()
-            final_result=logicOfCalci.main(text)
-            answer_label.setText(str(final_result[0]))
+            txt=lineEdit.line_edit.text()
+            lineEdit.line_edit.setCursorPosition(len(txt))
+            final_result,status=logicOfCalci.main(txt)
+            print final_result
+            
+            #print status
+            if len(final_result)>1:
+                if status=='':
+                    answer_label.setText('Bad Expression')
+                else:
+                    answer_label.setText(status)
+
+            # showing the integer result in integer form and floating type in decimal form
+            elif isNumber(final_result[0]):
+                if math.floor(final_result[0])==final_result[0]:
+                    answer_label.setText(str(int(final_result[0])))
+                else:
+                    answer_label.setText(str(final_result[0]))
         
         def changeSlide():
-            #print 'in <<< slide'
             if self.btn.text()=='>>>':
                 changed_list=[['sin()','<x','C'],['cos()','log()','ln()'],['tan()','()','fan'],['zan','y','=']]
                 for i in range(0,4):
@@ -44,8 +54,7 @@ class make_Button(QWidget):
                         abra.btn.setText(changed_list[i][j-3])
                 
                 grid.itemAtPosition(4,2).widget().btn.setText('<<<')
-                #print self.btn.text()
-            #self.btn.setText('>')
+        
             elif self.btn.text()=='<<<':
                 for i in range(0,4):
                     for j in range(3,6):
@@ -57,19 +66,21 @@ class make_Button(QWidget):
             lineEdit.line_edit.clear()
             answer_label.clear()
 
+        def cutText():
+            lineEdit.line_edit.backspace()
+            if lineEdit.line_edit.text()=='':
+                answer_label.clear()
+
         if self.btn.text()=='=':
             return result
         elif self.btn.text()=='C':
             return clear
         elif self.btn.text()=='>>>':
             return changeSlide
-        #elif self.btn.text()=='>':
-            #return basicSlide
+        elif self.btn.text()=='<x':
+            return cutText
         else:
-            #if btn_repr=='()':
-                #lineEdit.line_edit.cursorBackward(False,1)
             return CallBack
-    #def changeSlide(self):
 
 class make_LineEdit(QWidget):
     def __init__(self):
@@ -114,7 +125,7 @@ def window():
             operand_button=make_Button(button_list[i][j-3])
             grid.addWidget(operand_button,i,j)
     changeSlide_btn=make_Button('>>>')
-    grid.addWidget(changeSlide_btn,4,2)
+    grid.addWidget(changeSlide_btn,4,2,1,2)
 
     for i in range(len(constants_list)):
         constants_btn=make_Button(constants_list[i])
@@ -128,7 +139,7 @@ def window():
     vBox_outer.addLayout(grid_constants)
     vBox_outer.addLayout(grid)
 
-    window.setGeometry(20,40,580,550)
+    window.setGeometry(20,40,500,550)
     window.setLayout(vBox_outer)
     window.setWindowTitle('CaLCi-1707')
     window.show()
