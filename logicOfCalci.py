@@ -1,27 +1,35 @@
 import math
 
+# for checking a number is floating point or integer
+def isNumber(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False 
+
+# solves the inside bracket content and returns
 def insideBracket(exp,i):
     global status
     j=i+1 
-    brackets=0
-    if exp[j]=='(':
-        brackets+=1
-        k=j+1
-        while k<len(exp):
-            if exp[k]=='(':
-                brackets+=1
-            elif exp[k]==')':
-                brackets-=1
+    brackets=1
+    while j<len(exp):
+        if exp[j]=='(':
+            brackets+=1
+        elif exp[j]==')':
+            brackets-=1
 
-            if brackets==0:
-                ret_number,status=calculation(exp[j+1:k])
-                exp[j+1:k]=ret_number
-                break
-            k+=1 
+        if brackets==0:
+            ret_number,status=calculation(exp[i+1:j])
+            if status!='Successful':
+                return exp,status
+            exp[i:j+1]=ret_number
+            break
+        j+=1
+    #print 'Inside InsideBracket'
     return exp,status
 
-def calculation(lst):
-    global status
+def substitute(lst):
     # Replacing the constants with their values
     for i in range(len(lst)):
         if lst[i]=='R':
@@ -36,115 +44,97 @@ def calculation(lst):
             lst[i]=6.626e-34
         elif lst[i]=='t':
             lst[i]=2
+    return lst
+
+def calculation(lst):
+    global status
 
     # for sin ,cos , tan , log, ln , exp calculation
     i=0
     while i<len(lst)-1:
         if lst[i]=='sin':
-            lst,status=insideBracket(lst,i)
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
 
-            if status!='':
-                return lst,status
+            sin_result=math.sin(lst[i+1])
+            lst[i:i+2]=[sin_result]
 
-            sin_result=math.sin(lst[i+2])
-            lst[i:i+4]=[sin_result]
         elif lst[i]=='cos':
-            lst,status=insideBracket(lst,i)
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
+            
+            cos_result=math.cos(lst[i+1])
+            lst[i:i+2]=[cos_result]
 
-            if status!='':
-                return lst,status
-
-            cos_result=math.cos(lst[i+2])
-            lst[i:i+4]=[cos_result]
         elif lst[i]=='tan':
-            lst,status=insideBracket(lst,i)
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
 
-            if status!='':
-                return lst,status
+            tan_result=math.tan(lst[i+1])
+            lst[i:i+2]=[tan_result]
 
-            tan_result=math.tan(lst[i+2])
-            lst[i:i+4]=[tan_result]
         elif lst[i]=='log':
-            lst,status=insideBracket(lst,i)
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
 
-            if status!='':
-                return lst,status
-
-            if lst[i+2]>0:
-                log_result=math.log10(lst[i+2])
-                lst[i:i+4]=[log_result]
+            if lst[i+1]>0:
+                log_result=math.log10(lst[i+1])
+                lst[i:i+2]=[log_result]
             else:
-                status+= '\nArgument of log10 cannot be negative'
+                status+= 'Argument of log10 cannot be negative'
                 return lst,status
 
         elif lst[i]=='exp':
-            lst,status=insideBracket(lst,i)
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
 
-            if status!='':
-                return lst,status
-
-            exp_result=math.exp(lst[i+2])
-            lst[i:i+4]=[exp_result]
+            exp_result=math.exp(lst[i+1])
+            lst[i:i+2]=[exp_result]
 
         elif lst[i]=='ln':
-            lst,status=insideBracket(lst,i)
-            #print lst
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
 
-            if status!='':
-                return lst,status
-
-            if lst[i+2]>0:
-                ln_result=math.log1p(lst[i+2])
-                lst[i:i+4]=[ln_result]
+            if lst[i+1]>0:
+                ln_result=math.log1p(lst[i+1])
+                lst[i:i+2]=[ln_result]
             else:
-                status+='\nArgument of ln cannot be negative'
-                return lst,status
-                #answer_label.setText('Argument of ln cannot be negative')
-
-        i+=1
-    # for sqrt
-    i=0
-    while i<len(lst)-1:
-        if lst[i]=='sqrt':
-            lst,status=insideBracket(lst,i)
-
-            if status!='':
+                status+= '\nArgument of ln cannot be negative'
                 return lst,status
 
-            if lst[i+2]>=0:
-                sqrt_result=pow(lst[i+2],0.5)
-                lst[i:i+4]=[sqrt_result]
+        elif lst[i]=='sqrt':
+            if lst[i+1]=='(':
+                lst,status=insideBracket(lst,i+1)
+                if status!='Successful':
+                    return lst,status
+
+            if lst[i+1]>=0:
+                sqrt_result=pow(lst[i+1],0.5)
+                lst[i:i+2]=[sqrt_result]
             else:
                 status+='\nsquare root of negative number not possible'
                 return lst,status
-        i+=1
-
-    # for solving inside brackets
-    brackets=0
-    i=0
-    while i<len(lst)-1:
-        if lst[i]=='(':
-            brackets+=1
-            j=i+1
-            while j<len(lst):
-                if lst[j]=='(':
-                    brackets+=1
-                elif lst[j]==')':
-                    brackets-=1
-
-                if brackets==0:
-                    ret_number,status=calculation(lst[i+1:j])
-                    if status!='':
-                        return lst,status
-                    lst[i:j+1]=ret_number
-                    break
-                j+=1
+        elif lst[i]=='(':
+            lst,status=insideBracket(lst,i)
+            if status!='Successful':
+                return lst,status
         i+=1
 
     # for power x^n
     i=0
     while i<len(lst)-1:
-        #print lst
         if lst[i]=='^':
             if lst[i-1]<0 and lst[i+1]>-1 and lst[i+1]<1:
                 status='Negative numbers cannot be raised to fractional powers'
@@ -155,9 +145,9 @@ def calculation(lst):
                 i-=1
         i+=1
 
+    # for percentage calculation
     i=0
     while i<len(lst)-1:
-        #print lst
         if lst[i]=='%':
             if lst[i+1]!=0:
                 percentage_result=(lst[i-1]/lst[i+1])*100
@@ -166,14 +156,11 @@ def calculation(lst):
             else:
                 status+='\ndivide by zero error'
                 return lst,status
+       i+=1
 
-        i+=1
-
-
-    # for divide
+    # for dividion of two numbers
     i=0
     while i<len(lst)-1:
-        #print lst
         if lst[i]=='/':
             if lst[i+1]!=0:                               #97*100/5
                 divide_result=lst[i-1]/lst[i+1]
@@ -184,20 +171,20 @@ def calculation(lst):
                 return lst,status
         i+=1
 
-    # for multiplication
+    # for multiplication of two numbers
     i=0
     while i<len(lst)-1:
-        #print lst
         if lst[i]=='x':
-            print lst[i-1]
             multiply_result=lst[i-1]*lst[i+1]
             lst[i-1:i+2]=[multiply_result]
-            #print 'hey'+str(lst)
             i-=1
         i+=1  
 
-    if lst[0]=='-':
+    # Error handling cases when user types something arbitrarily
+    if lst[0]=='-' and len(lst)>=2:
         lst[0:2]=[lst[1]*(-1)] 
+    elif lst[0]=='+' and len(lst)>=2:
+        lst[0:2]=[lst[1]]
 
     # for subtraction
     i=0
@@ -208,43 +195,41 @@ def calculation(lst):
             i-=1
         i+=1
     
-
     # for addition
     i=0
     while i<len(lst)-1:
-        #print lst
         if lst[i]=='+':
             if isNumber(lst[i-1]) and isNumber(lst[i+1]):
                 add_result=lst[i-1]+lst[i+1]
                 lst[i-1:i+2]=[add_result]
                 i-=1
             else:
-                return lst,'Bad Expression'
+                return lst,status
         i+=1
-    return lst,status
-
-def isNumber(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False    
-                    
+    return lst,'Successful'  
+  
+# this function takes the string and parses it into a list of numbers , operands and expressions                  
 def main(txt):
-    #print txt
-    #print math.log(math.sin(math.pi))
     global status
     status=''
     lst=[]
+    decimal=['0','1','2','3','4','5','6','7','8','9','.']
 
     i=0
     while i<len(txt):
-        if txt[i] in ['0','1','2','3','4','5','6','7','8','9','.']:
+        if txt[i] in decimal:
+            countDot=0
+            if txt[i] =='.':
+                countDot+=1
             j=i+1
             if j==len(txt):
                 lst.append(float(txt[i]))
             while j<len(txt):
-                if txt[j] in ['0','1','2','3','4','5','6','7','8','9','.']:
+                if txt[j] in decimal:
+                    if txt[j]=='.':
+                        countDot+=1
+                        if countDot>1:
+                            return [],status
                     j+=1
                     if j==len(txt):
                         lst.append(float(txt[i:j]))
@@ -260,28 +245,58 @@ def main(txt):
         elif txt[i:i+3] in ['sin','cos','tan','log','exp'] and i<len(txt)-3:
             lst.append(txt[i:i+3])
             i+=2
-        elif txt[i:i+2] in ['pi','ln'] and i<len(txt)-1:
+        elif txt[i:i+2] in ['pi','ln'] and i<len(txt)-2:
             lst.append(txt[i:i+2])
             i+=1
         else:
             lst.append(txt[i])
         i+=1
 
-    # for extra space removal
+    # substituting the constants with their values
+    lst=substitute(lst)
+
+    # check if list is empty
+    if lst==[]:
+        return lst,'Empty Expression'
+
+    # for last element checking 
+    if not (isNumber(lst[len(lst)-1]) or lst[len(lst)-1]==')'):
+        return lst,status
+
+    # for correct brackets check
+    i=0
+    brackets=0
+    while i<len(lst):
+        if lst[i]=='(':
+            brackets+=1
+        elif lst[i]==')':
+            brackets-=1
+    
+        if brackets<0:
+            return lst,status
+        i+=1
+    if brackets!=0:
+        return lst,status
+
+    # for extra space removal and incorrect syntax checking
     i=0
     while i<len(lst):
         if lst[i]==' ':
             lst.pop(i)
             i-=1
-        if lst[i]==')' and i<len(lst)-1:
-            if lst[i+1]=='(':
-                lst.insert(i+1,'x')
-            elif lst[i+1] in ['sin','cos','tan','sqrt','log','ln','exp']:
-                lst.insert(i+1,'x')
-        if isNumber(lst[i]) and i<len(lst)-1:
-            if lst[i+1] in ['sin','cos','tan','log','ln','exp','sqrt']:
-                lst.insert(i+1,'x')
-        i+=1
-    #print lst
-    return calculation(lst)
+        elif lst[i] in ['+','-','x','/','^','%'] and i<len(lst)-1 and lst[i+1] in ['+','-','x','/','^','%']:
+            return lst,status
 
+        elif lst[i] in ['(','+','-','x','/','^','%'] and i<len(lst)-1 and lst[i+1] in [')','x','/','^','%']:
+            return lst,status
+
+        elif lst[i] in ['sin','cos','tan','log','ln','exp','sqrt'] and i<len(lst)-1:
+            if not (isNumber(lst[i+1]) or lst[i+1]=='('):
+                return lst,status
+
+        elif (lst[i]==')' or isNumber(lst[i])) and i<len(lst)-1 and lst[i+1] in ['sin','cos','tan','sqrt','log','ln','exp','(']:
+                lst.insert(i+1,'x')
+
+        i+=1
+    #print lst   
+    return calculation(lst)
