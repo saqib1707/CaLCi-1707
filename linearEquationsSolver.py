@@ -1,13 +1,14 @@
-def linearEquationsSolver(testcases):
+def EquationSolver():
+	testcases=1
 	for cases in range(testcases):
-		variables=input('No. of variables:')
-		lst=[]
-		for i in range(variables):
-			lst.append([])
-			for j in range(variables+1):
-				element=input('>>>')
-				lst[i].append(element)
-		
+		"""
+			lst=[]
+			for i in range(variables):
+				lst.append([])
+				for j in range(variables+1):
+					element=input()
+					lst[i].append(element)
+		"""
 		i=0
 		while i<variables:
 			maximum=max(lst[p][i] for p in range(variables))
@@ -23,12 +24,13 @@ def linearEquationsSolver(testcases):
 						break
 					j+=1
 			i+=1
+		#print lst
 
 		# solving the equations
 		i=0
 		while i<variables-1:
 			j=variables-1
-			while j>0:
+			while j>i:
 				k=0
 				factor=(float(lst[j][i]))/lst[j-1][i]
 				while k<=variables:
@@ -45,7 +47,7 @@ def linearEquationsSolver(testcases):
 					break
 			if nonzero==0:
 				print 'Inconsistent'
-				return
+				return 0
 			
 		# making the first coefficient term =1
 		i=0
@@ -56,6 +58,7 @@ def linearEquationsSolver(testcases):
 				lst[i][k]=float(lst[i][k])/factor
 				k+=1
 			i+=1
+		#print
 		#print lst
 
 		# for finding the final result
@@ -64,18 +67,20 @@ def linearEquationsSolver(testcases):
 		while i>=0:
 			k=variables-1
 			while k>i:
-				lst[i][variables]-=lst[i][k]*lst[i+1][variables]
+				lst[i][variables]-=lst[i][k]*lst[k][variables]
 				k-=1
 			result.append(lst[i][variables])
 			i-=1
 
 		# showing the results
+		return result
+
 		print 'Results'
 		for i in range(len(result)):
 			print result[len(result)-i-1]
+		
+		#print str(result[0])+' '+str(result[1])+' '+str(result[2])
 
-if __name__=='__main__':
-	linearEquationsSolver(input('No of testcases:'))
 
 
 

@@ -1,6 +1,7 @@
-import sys,math,logicOfCalci
+import sys,math,logicOfCalci,cv2
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from linearEquationsSolver import *
 
 
 class make_Button(QWidget):
@@ -35,7 +36,8 @@ class make_Button(QWidget):
             		if status=='':
             			answer_label.setText('Bad Expression')
             		else:
-            			answer_label.setText(status)	
+            			answer_label.setText(status)
+            				
 				# showing the integer result in integer form and floating type in decimal form
                 elif isNumber(final_result[0]):
                 	# for previous answer storage and storage
@@ -79,6 +81,29 @@ class make_Button(QWidget):
             global prev_answer
             lineEdit.line_edit.insert(str(prev_answer))
 
+        def linearEquationSolver():
+        	answer_label.setText('Enter number of variables:')
+        	#os.system("pause")
+        	#raw_input('>>>')
+        	#pause()
+        	while True:
+        		wait=cv2.waitKey(1)
+        		if wait==27:
+        			break
+
+        	variables=float(lineEdit.line_edit.text())
+        	lst=[]
+        	for row in range(variables):
+        		lst.append([])
+        		answer_label.setText('Enter row:'+str(row+1))
+        		for col in range(variables+1):
+        			# wait
+        			os.system('pause')
+        			lst[row].append(float(lineEdit.line_edit.text()))
+        			lineEdit.line_edit.clear()
+        	result=EquationSolver(variables,lst)
+        	print result
+
         if self.button.text()=='=':
             return result
         elif self.button.text()=='C':
@@ -89,6 +114,9 @@ class make_Button(QWidget):
             return cutText
         elif self.button.text()=='Ans':
             return lineInsert
+        elif self.button.text()=='LES':
+        	return linearEquationSolver
+
         else:
             return writeToScreen
 
@@ -156,6 +184,9 @@ def window():
     changeSlide_btn=make_Button('>>>')
     grid.addWidget(changeSlide_btn,5,2)
 
+    equationSolver=make_Button('LES')
+    grid.addWidget(equationSolver,5,1)
+
     # adding the lineEdit widget in a Horizontal box
     hBox_lineEdit=QHBoxLayout()
     hBox_lineEdit.addWidget(lineEdit.line_edit)
@@ -175,3 +206,5 @@ def window():
 
 if __name__=='__main__':
     window()
+
+	

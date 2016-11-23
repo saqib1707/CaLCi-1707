@@ -9,25 +9,25 @@ def isNumber(s):
         return False 
 
 # solves the inside bracket content and returns
-def insideBracket(exp,i):
+def insideBracket(lst,i):
     global status
     j=i+1 
     brackets=1
-    while j<len(exp):
-        if exp[j]=='(':
+    while j<len(lst):
+        if lst[j]=='(':
             brackets+=1
-        elif exp[j]==')':
+        elif lst[j]==')':
             brackets-=1
 
         if brackets==0:
-            ret_number,status=calculation(exp[i+1:j])
+            ret_number,status=calculation(lst[i+1:j])
             if status!='Successful':
-                return exp,status
-            exp[i:j+1]=ret_number
+                return lst,status
+            lst[i:j+1]=ret_number
             break
         j+=1
     #print 'Inside InsideBracket'
-    return exp,status
+    return lst,status
 
 def substitute(lst):
     # Replacing the constants with their values
@@ -156,7 +156,7 @@ def calculation(lst):
             else:
                 status+='\ndivide by zero error'
                 return lst,status
-       i+=1
+        i+=1
 
     # for dividion of two numbers
     i=0
@@ -245,7 +245,7 @@ def main(txt):
         elif txt[i:i+3] in ['sin','cos','tan','log','exp'] and i<len(txt)-3:
             lst.append(txt[i:i+3])
             i+=2
-        elif txt[i:i+2] in ['pi','ln'] and i<len(txt)-2:
+        elif txt[i:i+2] in ['pi','ln'] and i<len(txt)-1:
             lst.append(txt[i:i+2])
             i+=1
         else:
@@ -253,7 +253,9 @@ def main(txt):
         i+=1
 
     # substituting the constants with their values
+    #print lst
     lst=substitute(lst)
+    #print lst
 
     # check if list is empty
     if lst==[]:
@@ -294,7 +296,7 @@ def main(txt):
             if not (isNumber(lst[i+1]) or lst[i+1]=='('):
                 return lst,status
 
-        elif (lst[i]==')' or isNumber(lst[i])) and i<len(lst)-1 and lst[i+1] in ['sin','cos','tan','sqrt','log','ln','exp','(']:
+        elif (lst[i]==')' or isNumber(lst[i])) and i<len(lst)-1 and (lst[i+1] in ['sin','cos','tan','sqrt','log','ln','exp','('] or isNumber(lst[i+1])):
                 lst.insert(i+1,'x')
 
         i+=1
